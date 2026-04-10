@@ -3,6 +3,7 @@ require("dotenv").config()
 const bcrypt= require('bcrypt')
 const jwt = require("jsonwebtoken")
 const { Expense } = require("../model")
+const sequelize = require("../utils/connection_db")
 const signUpUser = async (req,res) => {
     try {
     console.log("Body",req.body)
@@ -86,15 +87,26 @@ const updateSalary = async (req, res) => {
 }
 let getAllUser =async (req,res) => {
   try {
-    let users = await User.findAll({
-      include: [
-      {model:Expense}
-      ]
-    })
-    console.log(users)
+   let users = await User.findAll({
+  attributes: [
+    "id",
+    "name",
+       [sequelize.fn("SUM", sequelize.col("expenses.amount")), "totalExpense"],
+   
+  ],
+  include: [
+    {
+      model: Expense,
+      attributes: []
+    }
+  ],
+  group: ["User.id"]
+})
+    console.log("Users",users)
     res.status(200).json({users})
   } catch (error) {
-   res.status(200).json({message:"server error"})
+    console.log(error)
+   res.status(500).json({message:"server error"})
   }
 }
 

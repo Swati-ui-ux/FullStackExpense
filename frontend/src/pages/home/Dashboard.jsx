@@ -103,16 +103,10 @@ const navigate = useNavigate()
       <button onClick={handleShow} className="bg-linear-to-r from-teal-300 to-teal-500 text-white p-2 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer">Primium user</button>
       <div>
  {showAllUser.map((user) => {
-  const total = user.expenses?.reduce((sum, exp) => {
-    return sum + exp.amount;
-  }, 0);
-
   return (
     <div key={user.id}>
       <h2>{user.name}</h2>
-
-      <p><b>Total Expense:</b> {total}</p>
-
+      <p><b>Total Expenses:</b> {user.totalExpense}</p>
       {user.expenses?.map((exp) => (
         <p key={exp.id}>Amount: {exp.amount}</p>
       ))}
@@ -120,10 +114,9 @@ const navigate = useNavigate()
   );
 })}
 </div>
-      {/*  */}
+      {/*user Details  */}
  <UserDetail/>
       <div className="grid md:grid-cols-2 gap-6 mb-6">
-{/* user details */}
         {/* Salary Card */}
         <div className="bg-white shadow-lg rounded-xl p-6 border border-pink-200">
           <h2 className="text-lg font-semibold text-gray-700">
