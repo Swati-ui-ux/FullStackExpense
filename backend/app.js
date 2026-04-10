@@ -19,7 +19,7 @@ app.use("/expense",expenseRouter)
 
 
 
-db.sync({ alter: true })
+db.sync()
     .then(() => console.log("db ok"))
     .catch(() => console.log("error in db "))
 
