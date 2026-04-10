@@ -16,7 +16,10 @@ const addExpense = async (req, res) => {
     description,
     userId: req.user.id
   })
-
+  await User.increment(
+   { totalExpense: amount},
+    {where:{id:req.user.id}}
+  )
   user.remainingBalance -= amount
   await user.save()
 
@@ -34,10 +37,10 @@ const getExpenses = async (req, res) => {
   })
 
   const user = await User.findByPk(req.user.id)
-
+ 
   res.json({
     expenses,
-    balance: user.remainingBalance
+    balance: user.remainingBalance,
   })
 }
 

@@ -29,7 +29,12 @@ const User =  sequelize.define("user", {
   remainingBalance: {
     type: DataTypes.INTEGER,
     defaultValue: 0
-  }
+    },
+    totalExpense: {
+     type: DataTypes.INTEGER,
+    defaultValue: 0
+    
+    }
 
 },{
 timestamps:true

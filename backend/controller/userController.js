@@ -53,9 +53,10 @@ const loginUser = async (req,res) => {
 const getUserData = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ["id", "name", "email", "salary", "remainingBalance"]
+      attributes: ["id", "name", "email", "salary", "remainingBalance","totalExpense"]
     })
-
+    let totalExpense= await Expense.
+    console.log(user)
     res.json(user)
 
   } catch (err) {
@@ -70,7 +71,6 @@ const updateSalary = async (req, res) => {
     const user = await User.findByPk(req.user.id)
 
     const diff = salary - user.salary
-
     user.salary = salary
     user.remainingBalance += diff
 
