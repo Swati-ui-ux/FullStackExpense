@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [amount, setAmount] = useState("")
   const [desc, setDesc] = useState("")
   const [expenses, setExpenses] = useState([])
+  const [showAllUser,setShowAllUser] = useState([])
 const navigate = useNavigate()
   const token = localStorage.getItem("token")
 
@@ -75,6 +76,16 @@ const navigate = useNavigate()
     navigate("/login")
   }
 
+  let handleShow = async() => {
+    try {
+      let res = await axios.get("http://localhost:4000/users/all")
+      setShowAllUser(res.data.users)
+      console.log("Data",res.data.users)
+    } catch (error) {
+      console.log("Error",error.response.data||error.message)
+    }
+  console.log("hello")
+  }
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-100 via-purple-100 to-white p-6">
       {/* log out */}
@@ -89,6 +100,26 @@ const navigate = useNavigate()
       <h1 className="text-4xl font-bold text-purple-700 mb-6 text-center">
         💰 Dashboard
       </h1>
+      <button onClick={handleShow} className="bg-linear-to-r from-teal-300 to-teal-500 text-white p-2 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer">Primium user</button>
+      <div>
+ {showAllUser.map((user) => {
+  const total = user.expenses?.reduce((sum, exp) => {
+    return sum + exp.amount;
+  }, 0);
+
+  return (
+    <div key={user.id}>
+      <h2>{user.name}</h2>
+
+      <p><b>Total Expense:</b> {total}</p>
+
+      {user.expenses?.map((exp) => (
+        <p key={exp.id}>Amount: {exp.amount}</p>
+      ))}
+    </div>
+  );
+})}
+</div>
       {/*  */}
  <UserDetail/>
       <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -108,7 +139,7 @@ const navigate = useNavigate()
 
           <button
             onClick={handleSalary}
-            className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-2 mt-3 w-full rounded hover:opacity-90"
+            className="bg-linear-to-r from-pink-500 to-purple-500 text-white p-2 mt-3 w-full rounded hover:opacity-90"
           >
             Update Salary
           </button>

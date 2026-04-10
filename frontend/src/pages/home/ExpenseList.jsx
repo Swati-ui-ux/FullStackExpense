@@ -20,14 +20,14 @@ const formatDay = (date) => {
   })
 }
   return (
-       <div className="space-y-3">
+       <div className="space-y-3 gird grid-cols-2 md:grid-cols-2">
         {expenses.length === 0 ? (
           <p className="text-gray-500 text-center">No expenses</p>
         ) : (
           expenses.map((exp) => (
             <div
               key={exp.id}
-              className="bg-white shadow-md rounded-lg p-4 border border-purple-100 flex justify-between"
+              className="bg-white shadow-md rounded-lg p-4 border border-purple-100 flex justify-between  sm:grid sm:grid-cols-1"
             >
               <span className="text-gray-700 font-medium">
                 ₹{exp.amount}
