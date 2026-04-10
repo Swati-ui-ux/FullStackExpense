@@ -2,6 +2,7 @@ const User = require("../model/User")
 require("dotenv").config()
 const bcrypt= require('bcrypt')
 const jwt = require("jsonwebtoken")
+const { Expense } = require("../model")
 const signUpUser = async (req,res) => {
     try {
     console.log("Body",req.body)
@@ -83,5 +84,18 @@ const updateSalary = async (req, res) => {
     res.status(500).json({ message: "Error updating salary" })
   }
 }
+let getAllUser =async (req,res) => {
+  try {
+    let users = await User.findAll({
+      include: [
+      {model:Expense}
+      ]
+    })
+    console.log(users)
+    res.status(200).json({users})
+  } catch (error) {
+   res.status(200).json({message:"server error"})
+  }
+}
 
-module.exports = {signUpUser,loginUser,getUserData,updateSalary}
+module.exports = {signUpUser,loginUser,getUserData,updateSalary,getAllUser}
