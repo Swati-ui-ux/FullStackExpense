@@ -12,7 +12,7 @@ const ExpenseList = ({expenses}) => {
     
   })
     }
-    
+        
     
 const formatDay = (date) => {
   return new Date(date).toLocaleDateString("en-IN", {

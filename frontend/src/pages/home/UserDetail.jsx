@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios"
 const UserDetail = () => {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState([])
   const token = localStorage.getItem("token")
-
+  // const [expenseTotal, setExpenseTotal] = useState([]);
+  
 const config = {
   headers: {
     Authorization: `Bearer ${token}`
@@ -15,6 +16,7 @@ const config = {
       "http://localhost:4000/users/me",
       config
     )
+    console.log("User",res)
     setUser(res.data)
   } catch (err) {
     console.log(err.response?.data)
@@ -24,12 +26,16 @@ const config = {
   fetchUser()
 }, [])
   return (
-      <div>
+    <div>
+      
       {user && (
   <div className="bg-white shadow-md rounded-lg p-4 mb-4 border border-purple-200 text-center">
     <h2 className="text-lg font-semibold text-purple-700">
-      👋 Welcome, {user.name}
-    </h2>
+            👋 Welcome, {user.user.name}
+            <hr />
+            Email : {user.user.email}
+          </h2>
+       <h3>Total Expense : {user.totalExpense}</h3>
     <p className="text-gray-500">{user.email}</p>
   </div>
 )}

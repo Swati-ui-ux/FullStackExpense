@@ -49,20 +49,61 @@ const loginUser = async (req,res) => {
 }
 
 
-
 const getUserData = async (req, res) => {
+  const t = await sequelize.transaction()
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: ["id", "name", "email", "salary", "remainingBalance","totalExpense"]
+      attributes: [
+        "id",
+        "name",
+        "email",
+        "salary",
+        "remainingBalance",
+        "totalExpense"
+      ],
+      transaction: t
     })
-    let totalExpense= await Expense.
-    console.log(user)
-    res.json(user)
-
+    if (!user) {
+      await t.rollback()
+      return res.status(404).json({ message: "User not found" })
+    }
+    const totalExpense = await Expense.sum("amount", {
+      where: { UserId: req.user.id },
+      transaction: t
+    })
+    await t.commit()
+    return res.status(200).json({
+      user,
+      totalExpense: totalExpense
+    })
   } catch (err) {
-    res.status(500).json({ message: "Error fetching user" })
+    await t.rollback()
+console.log(err)
+    return res.status(500).json({
+      
+      message: "Error fetching user"
+    })
   }
 }
+
+
+
+
+
+
+// const getUserData = async (req, res) => {
+//   try {
+//     const user = await User.findByPk(req.user.id, {
+//       attributes: ["id", "name", "email", "salary", "remainingBalance","totalExpense"]
+//     })
+//     let totalExpense= await Expense.
+//     console.log(user)
+//     res.json(user,totalExpense)
+
+//   } catch (err) {
+//     res.status(500).json({ message: "Error fetching user" })
+//   }
+// }
 
 const updateSalary = async (req, res) => {
   try {
@@ -109,5 +150,14 @@ let getAllUser =async (req,res) => {
    res.status(500).json({message:"server error"})
   }
 }
+const deleteUser =async (req,res) => {
+   try {
+     const { id } = req.params;
+     const user = await User.destroy({ where: { id } })
+     res.status(200).json({message:"user deleted success"})
+   } catch (error) {
+     res.status(500).json({message:"server error "})
+   }
+}
 
-module.exports = {signUpUser,loginUser,getUserData,updateSalary,getAllUser}
+module.exports = {signUpUser,loginUser,getUserData,updateSalary,getAllUser,deleteUser}

@@ -23,6 +23,7 @@ const navigate = useNavigate()
    const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:4000/expense", config)
+      console.log(res.data)
       setExpenses(res.data?.expenses || [])
       setBalance(res.data?.balance || 0)
     } catch (err) {
@@ -86,6 +87,17 @@ const navigate = useNavigate()
     }
   console.log("hello")
   }
+  let handleClick = async(id) => {
+    try {
+      await axios.delete(`http://localhost:4000/users/delete/${id}`)
+      alert("user deleted success")
+      fetchData()
+      // console.log(id)
+    } catch (error) {
+      console.log(error)
+    }
+  // console.log("hy")
+  }
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-100 via-purple-100 to-white p-6">
       {/* log out */}
@@ -110,6 +122,7 @@ const navigate = useNavigate()
       {user.expenses?.map((exp) => (
         <p key={exp.id}>Amount: {exp.amount}</p>
       ))}
+      <button onClick={()=>handleClick(user.id)}>Delete Expense</button>
     </div>
   );
 })}
