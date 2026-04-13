@@ -53,7 +53,10 @@ const navigate = useNavigate()
   }
 
   const handleExpense = async () => {
-    try {
+    try {      
+      if (!amount || !desc) {
+        return alert("Please fill all fields")
+      }
       const res = await axios.post(
         "http://localhost:4000/expense",
         {
@@ -166,6 +169,7 @@ const navigate = useNavigate()
           <input
             type="number"
             placeholder="Amount"
+            required
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             className="border border-pink-300 p-2 rounded w-full focus:ring-2 focus:ring-purple-400"
@@ -173,6 +177,7 @@ const navigate = useNavigate()
 
           <input
             type="text"
+            required
             placeholder="Description"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}

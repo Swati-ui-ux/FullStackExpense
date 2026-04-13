@@ -4,6 +4,7 @@ const bcrypt= require('bcrypt')
 const jwt = require("jsonwebtoken")
 const { Expense } = require("../model")
 const sequelize = require("../utils/connection_db")
+const sendResetEmail = require("../utils/sendEmail")
 const signUpUser = async (req,res) => {
     try {
     console.log("Body",req.body)
@@ -159,5 +160,23 @@ const deleteUser =async (req,res) => {
      res.status(500).json({message:"server error "})
    }
 }
+
+// const forgotPassword = async(req,res) => {
+//  try {
+//    const { email } = req.body;
+//    const user = await User.findOne({ where: { email } })
+//    if (!user) return res.status(404).json({ message: "User not found" });
+
+//   const resetToken = crypto.randomBytes(32).toString("hex");
+
+//   user.resetToken = resetToken;
+//   user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
+//    await user.save();
+//    sendResetEmail
+//  } catch (error) {
+  
+//  }
+// }
+
 
 module.exports = {signUpUser,loginUser,getUserData,updateSalary,getAllUser,deleteUser}

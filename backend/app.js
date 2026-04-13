@@ -8,14 +8,14 @@ require("./model")
 
 const userRouter = require("./routes/userRoute")
 const expenseRouter = require("./routes/expenseRoute")
-
+const authRoutes = require("./routes/auth.routes")
 app.use(express.json())
 // cors()
 app.use(cors())
 app.use("/users", userRouter)
 app.use("/expense",expenseRouter)
 
-
+app.use('/api/auth',authRoutes)
 
 
 

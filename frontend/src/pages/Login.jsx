@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate,Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 const Login = () => {
  const navigate =  useNavigate()
@@ -45,6 +45,7 @@ console.log("Token",res.data.token)
   }
 };
 
+
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       
@@ -79,8 +80,9 @@ console.log("Token",res.data.token)
         >
           Login
         </button>
-
       </form>
+       <span>Forgot password <Link to='/forgot-password'>click</Link></span>
+      
     </div>
   )
 }

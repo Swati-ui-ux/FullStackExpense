@@ -5,6 +5,7 @@ import { ToastContainer } from 'react-toastify'
 import { Route, Routes } from 'react-router-dom'
 
 import Dashboard from './pages/home/Dashboard'
+import Forgot from './pages/home/Forgot'
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path='/signup' element={<SignUp />} />
         
         <Route path='/login' element={<Login />} />
+        <Route path='/forgot-password' element={<Forgot/>}/>
         
    <Route path ="/" element={<Dashboard/>}/>
       </Routes>
