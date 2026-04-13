@@ -5,5 +5,4 @@ const apiKey = client.authentications['api-key'];
 
 apiKey.apiKey = process.env.EMAIL_API_KEY;
 
-console.log("Key = " , process.env.EMAIL_API_KEY)
 module.exports = SibApiV3Sdk;
