@@ -31,17 +31,28 @@ const addExpense = async (req, res) => {
 
 // 📋 Get Expenses
 const getExpenses = async (req, res) => {
-  const expenses = await Expense.findAll({
+  try {
+    
+  const page = parseInt(req.query.page)
+  const limit = 5;
+  const offset = (page - 1) * limit;
+  console.log("Query page:💌💌💌💌", req.query.page);
+  const {count,rows} = await Expense.findAndCountAll({
     where: { userId: req.user.id },
+    limit,
+    offset,
     order: [["createdAt", "DESC"]]
   })
-
-  const user = await User.findByPk(req.user.id)
- 
+console.log("page ",page,"Offset " ,offset)
   res.json({
-    expenses,
-    balance: user.remainingBalance,
-  })
+      expenses: rows,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+  });
+  } catch (error) {
+     res.status(500).json({ message: "Error" });
+  }
+  
 }
 
 module.exports = { addExpense, getExpenses }

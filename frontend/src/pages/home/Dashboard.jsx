@@ -11,7 +11,11 @@ const Dashboard = () => {
   const [amount, setAmount] = useState("")
   const [desc, setDesc] = useState("")
   const [expenses, setExpenses] = useState([])
-  const [showAllUser,setShowAllUser] = useState([])
+  const [showAllUser, setShowAllUser] = useState([])
+  
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+  
 const navigate = useNavigate()
   const token = localStorage.getItem("token")
 
@@ -22,8 +26,10 @@ const navigate = useNavigate()
   }
    const fetchData = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/expense", config)
-      setExpenses(res.data?.expenses || [])
+      const res = await axios.get(`http://localhost:4000/expense?page=${page}`, config)
+      console.log("Page",res.data.totalPages)
+      setExpenses(res.data.expenses)
+      setTotalPages(res.data.totalPages)
       setBalance(res.data?.balance || 0)
     } catch (err) {
       console.log(err.response?.data)
@@ -32,7 +38,7 @@ const navigate = useNavigate()
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [page])
  
 
   const handleSalary = async () => {
@@ -194,7 +200,12 @@ const navigate = useNavigate()
       </div>
 
       {/* Expenses List */}
-   <ExpenseList expenses={expenses} />
+   <ExpenseList expenses={expenses}
+      onDelete={(id) => console.log("delete", id)}
+      onEdit={(exp) => console.log("edit", exp)}
+      page={page}
+      setPage={setPage}
+      totalPages={totalPages} />
 
     </div>
   )
