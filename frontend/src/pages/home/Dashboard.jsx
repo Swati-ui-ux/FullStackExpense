@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios"
 import ExpenseList from "./ExpenseList"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import UserDetail from "./UserDetail"
 
 const Dashboard = () => {
@@ -23,7 +23,6 @@ const navigate = useNavigate()
    const fetchData = async () => {
     try {
       const res = await axios.get("http://localhost:4000/expense", config)
-      console.log(res.data)
       setExpenses(res.data?.expenses || [])
       setBalance(res.data?.balance || 0)
     } catch (err) {
@@ -116,6 +115,7 @@ const navigate = useNavigate()
         💰 Dashboard
       </h1>
       <button onClick={handleShow} className="bg-linear-to-r from-teal-300 to-teal-500 text-white p-2 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer">Primium user</button>
+       <span className="bg-linear-to-r from-purple-400 to-pink-500 text-white p-2 ml-4 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer"><Link to='/expense-report'>Expense Report</Link> </span>
       <div>
  {showAllUser.map((user) => {
   return (
