@@ -1,7 +1,8 @@
 const User = require('../model/User');
 const { generateResetToken } = require('../utils/token.util');
 const { sendResetEmail } = require('../services/email.service');
-
+const bcrypt = require('bcrypt')
+const { Op } = require('sequelize')
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -34,4 +35,48 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-module.exports = { forgotPassword };
+
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params
+    const { password } = req.body
+console.log(password)
+    if (!password) {
+      return res.status(400).json({ message: "Password required" })
+    }
+
+    // 🔍 user find using token + expiry check
+    const user = await User.findOne({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: {
+          [Op.gt]: new Date()
+        }
+      }
+    })
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" })
+    }
+
+    // 🔐 password hash
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // update user
+    user.password = hashedPassword
+    user.resetToken = null
+    user.resetTokenExpiry = null
+
+    await user.save()
+
+    res.json({ message: "Password reset successful" })
+
+  } catch (error) {
+    console.log("Reset Error:", error)
+    res.status(500).json({ message: "Server error" })
+  }
+}
+
+
+module.exports = { forgotPassword,resetPassword };
