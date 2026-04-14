@@ -7,6 +7,7 @@ const ExpenseList = ({
   page,
   setPage,
   totalPages,
+  limit,setLimit
 }) => {
   const formatDate = (date) => {
     return new Date(date).toLocaleString("en-IN", {
@@ -27,6 +28,22 @@ const ExpenseList = ({
   return (
     <>
       {/* Expense Cards */}
+      <div>
+          Expenses: 
+        <select value={limit}
+          onChange={(e) => {
+            setLimit(Number(e.target.value));
+            setPage(1)
+          }}
+           className="ml-2 border px-2 py-1"
+        >
+        <option value="2">2</option>
+        <option value="5">5</option>
+          <option value="10">10</option>
+        <option value="20">20</option>
+          
+        </select>
+      </div>
       <div className="space-y-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {expenses.length === 0 ? (
           <p className="text-gray-500 text-center col-span-full">

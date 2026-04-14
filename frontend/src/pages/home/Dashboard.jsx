@@ -12,8 +12,10 @@ const Dashboard = () => {
   const [desc, setDesc] = useState("")
   const [expenses, setExpenses] = useState([])
   const [showAllUser, setShowAllUser] = useState([])
-  
-  const [page, setPage] = useState(1);
+  const [limit ,setLimit] = useState(5)
+  const [page, setPage] = useState(() => {
+  return Number(localStorage.getItem("page")) || 1;
+  })
 const [totalPages, setTotalPages] = useState(1);
   
 const navigate = useNavigate()
@@ -26,8 +28,12 @@ const navigate = useNavigate()
   }
    const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:4000/expense?page=${page}`, config)
-      console.log("Page",res.data.totalPages)
+      const res = await axios.get(`http://localhost:4000/expense?page=${page}&limit=${limit}`, config)
+      if (res.data.expenses.length === 0 && page > 1) {
+    setPage(prev => prev - 1);
+    return; // ⚠️ important (warna infinite loop ho jayega)
+  }
+
       setExpenses(res.data.expenses)
       setTotalPages(res.data.totalPages)
       setBalance(res.data?.balance || 0)
@@ -38,7 +44,8 @@ const navigate = useNavigate()
 
   useEffect(() => {
     fetchData()
-  }, [page])
+     localStorage.setItem("page", page);
+  }, [page,limit])
  
 
   const handleSalary = async () => {
@@ -70,7 +77,6 @@ const navigate = useNavigate()
         },
         config
       )
-
       setBalance(res.data.remainingBalance)
       setAmount("")
       setDesc("")
@@ -106,6 +112,21 @@ const navigate = useNavigate()
     }
   // console.log("hy")
   }
+  
+  let handleDelete = async (id) => {
+    try {
+      let res = await axios.delete(`http://localhost:4000/expense/${id}`, config)
+      fetchData()
+      if (expenses.length === 0 && page > 1) {
+  setPage(prev => prev - 1);
+}
+      console.log("delete success")
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-100 via-purple-100 to-white p-6">
       {/* log out */}
@@ -201,12 +222,14 @@ const navigate = useNavigate()
 
       {/* Expenses List */}
    <ExpenseList expenses={expenses}
-      onDelete={(id) => console.log("delete", id)}
+      onDelete={(id) =>handleDelete(id)}
       onEdit={(exp) => console.log("edit", exp)}
       page={page}
       setPage={setPage}
-      totalPages={totalPages} />
-
+        totalPages={totalPages}
+        limit={limit}
+        setLimit={setLimit}
+      />
     </div>
   )
 }

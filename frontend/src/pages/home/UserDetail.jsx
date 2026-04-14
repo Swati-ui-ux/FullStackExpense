@@ -18,7 +18,7 @@ const UserDetail = () => {
         }
       )
 
-      console.log("API Response:", res.data.user)
+      // console.log("profile detail:", res.data.user)
 
       // ✅ Correct data mapping
       setUser(res.data.user)
