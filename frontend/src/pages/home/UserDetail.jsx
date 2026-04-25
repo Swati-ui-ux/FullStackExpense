@@ -1,43 +1,80 @@
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import axios from "axios"
+import { AuthContext } from "../../context/AuthContext"
 
 const UserDetail = () => {
-  const [user, setUser] = useState(null)
-  const [totalExpense, setTotalExpense] = useState(0)
-
+ 
+ let {user,totalExpense,isPremium,fetchUser} = useContext(AuthContext)
   const token = localStorage.getItem("token")
 
-  const fetchUser = async () => {
-    try {
-      const res = await axios.get(
-        "http://localhost:4000/users/me",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
 
-      // console.log("profile detail:", res.data.user)
-
-      // ✅ Correct data mapping
-      setUser(res.data.user)
-      setTotalExpense(res.data.totalExpense)
-
-    } catch (err) {
-      console.log(err.response?.data || err.message)
-    }
-  }
 
   useEffect(() => {
     fetchUser()
   }, [])
+ 
+const handleBuyPremium = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
+    const res = await axios.get("http://localhost:4000/payment/buy-premium", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const { payment_session_id, order_id } = res.data;
+
+    const cashfree = window.Cashfree({
+      mode: "sandbox"
+    });
+
+    await cashfree.checkout({
+      paymentSessionId: payment_session_id,
+      redirectTarget: "_modal"
+    });
+
+    // 🔥 ALWAYS verify (condition hata di)
+    const verifyRes = await axios.post(
+      "http://localhost:4000/payment/verify-payment",
+      { order_id },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    console.log("verify response:", verifyRes.data);
+
+    if (verifyRes.data.success) {
+      alert("🎉 Premium Activated!");
+      window.location.reload();
+    } else {
+      alert("Payment not completed yet ❌");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+  
   return (
+    <>
+      {!isPremium ? (
+  <button
+    onClick={handleBuyPremium}
+    className="bg-yellow-500 text-white px-4 py-2 rounded mt-3"
+  >
+    💎 Buy Premium
+  </button>
+) : (
+  <p className="text-green-600 font-bold mt-3">✅ Premium User</p>
+)}
     <div className="flex justify-center items-center mb-4">
       
       {user ? (
-        <div className="bg-white shadow-lg rounded-2xl p-6 w-96 border border-purple-200 text-center">
+        <div className="bg-white shadow-lg rounded-2xl p-6 w-[80%] border border-purple-200 text-center">
 
           <h2 className="text-2xl font-bold text-purple-700 mb-2">
             👋 Welcome, {user.name}
@@ -67,6 +104,7 @@ const UserDetail = () => {
       )}
 
     </div>
+</>
   )
 }
 

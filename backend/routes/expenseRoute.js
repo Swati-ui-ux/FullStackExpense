@@ -10,4 +10,5 @@ router.get("/", auth, getExpenses)
 router.delete("/:id", auth, deleteExpense)
 
 router.post("/salary", auth, updateSalary)
+
 module.exports = router

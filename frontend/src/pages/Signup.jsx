@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState ,useContext} from "react";
 import axios from "axios";
 import {  toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"
-
+import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 function SignUp() {
+  const {isLoggedIn} = useContext(AuthContext)
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: "",
@@ -30,15 +32,11 @@ function SignUp() {
     const res = await axios.post(
       "http://localhost:4000/users/signup",
       formData
-    );
-
-    console.log(res.data);
-    console.log("Token ", res.data.token)
-    
-    
-    toast.success("User created successfully");
+    );    
+    toast.success(res.data.messsage);
     localStorage.setItem("token", res.data.token)
-   navigate("/")
+    navigate("/login")
+   
     setFormData({
       name: "",
       email: "",
@@ -59,7 +57,7 @@ function SignUp() {
         className="bg-white p-8 rounded-2xl shadow-lg w-96"
       >
         <h2 className="text-2xl font-bold text-center mb-6">
-          Add User
+          Sign up
         </h2>
 
         <input
@@ -96,11 +94,11 @@ function SignUp() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+          className="w-full mb-2 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
         >
           Add User
         </button>
-
+  <span>Create new Account <Link to='/login' className='text-blue-600'>click</Link></span>
         
           </form>
            

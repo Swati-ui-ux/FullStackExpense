@@ -9,11 +9,15 @@ require("./model")
 const userRouter = require("./routes/userRoute")
 const expenseRouter = require("./routes/expenseRoute")
 const authRoutes = require("./routes/auth.routes")
+const paymentRoutes = require("./routes/paymentRoutes");
+
 app.use(express.json())
 // cors()
 app.use(cors())
 app.use("/users", userRouter)
-app.use("/expense",expenseRouter)
+app.use("/expense", expenseRouter)
+// payment route
+app.use("/payment", paymentRoutes);
 
 app.use('/api/auth',authRoutes)
 

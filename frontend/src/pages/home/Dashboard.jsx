@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import axios from "axios"
 import ExpenseList from "./ExpenseList"
 import { Link, useNavigate } from "react-router-dom"
 import UserDetail from "./UserDetail"
-
+import Logout from "./Logout"
+import { AuthContext } from "../../context/AuthContext"
 const Dashboard = () => {
+  const{updateSalary, addExpense, deleteExpense} = useContext(AuthContext)
   const [salary, setSalary] = useState(0)
   const [balance, setBalance] = useState(0)
   const [inputSalary, setInputSalary] = useState("")
@@ -12,14 +14,15 @@ const Dashboard = () => {
   const [desc, setDesc] = useState("")
   const [expenses, setExpenses] = useState([])
   const [showAllUser, setShowAllUser] = useState([])
+ 
   const [limit ,setLimit] = useState(5)
   const [page, setPage] = useState(() => {
   return Number(localStorage.getItem("page")) || 1;
   })
+const { isPremium } = useContext(AuthContext)
 const [totalPages, setTotalPages] = useState(1);
-  
 const navigate = useNavigate()
-  const token = localStorage.getItem("token")
+const token = localStorage.getItem("token")
 
   const config = {
     headers: {
@@ -33,10 +36,10 @@ const navigate = useNavigate()
     setPage(prev => prev - 1);
     return; // ⚠️ important (warna infinite loop ho jayega)
   }
-
+    //  console.log(res)
       setExpenses(res.data.expenses)
       setTotalPages(res.data.totalPages)
-      setBalance(res.data?.balance || 0)
+      // setBalance(res.data?.balance || 0)
     } catch (err) {
       console.log(err.response?.data)
     }
@@ -49,117 +52,43 @@ const navigate = useNavigate()
  
 
   const handleSalary = async () => {
-    try {
-      const res = await axios.post(
-        "http://localhost:4000/users/salary",
-        { salary: Number(inputSalary) },
-        config
-      )
-
-      setSalary(res.data.salary)
-      setBalance(res.data.remainingBalance)
-      setInputSalary("")
-    } catch (err) {
-      console.log(err.response?.data)
-    }
+    if(inputSalary==0)return alert("Salary cannot be zero")
+    updateSalary(inputSalary)
+    setInputSalary("")
   }
 
   const handleExpense = async () => {
-    try {      
+        
       if (!amount || !desc) {
         return alert("Please fill all fields")
       }
-      const res = await axios.post(
-        "http://localhost:4000/expense",
-        {
-          amount: Number(amount),
-          description: desc
-        },
-        config
-      )
-      setBalance(res.data.remainingBalance)
+      
+      addExpense(amount, desc)
       setAmount("")
       setDesc("")
       fetchData()
-    } catch (err) {
-      console.log(err.response?.data)
-    }
-  }
-  const handleLogOut = () => {
-    localStorage.removeItem("token")
-    
-    navigate("/login")
-  }
-
-  let handleShow = async() => {
-    try {
-      let res = await axios.get("http://localhost:4000/users/all")
-      setShowAllUser(res.data.users)
-      console.log("Data",res.data.users)
-    } catch (error) {
-      console.log("Error",error.response.data||error.message)
-    }
-  console.log("hello")
-  }
-  let handleClick = async(id) => {
-    try {
-      await axios.delete(`http://localhost:4000/users/delete/${id}`)
-      alert("user deleted success")
-      fetchData()
-      // console.log(id)
-    } catch (error) {
-      console.log(error)
-    }
-  // console.log("hy")
   }
   
-  let handleDelete = async (id) => {
-    try {
-      let res = await axios.delete(`http://localhost:4000/expense/${id}`, config)
-      fetchData()
-      if (expenses.length === 0 && page > 1) {
-  setPage(prev => prev - 1);
-}
-      console.log("delete success")
-      console.log(res)
-    } catch (error) {
-      console.log(error)
-    }
+  let handleDelete = async (id, amount) => {
+   deleteExpense(id,amount)
   }
   
   return (
     <div className="min-h-screen bg-linear-to-br from-pink-100 via-purple-100 to-white p-6">
+      <div className="flex items-center justify-around">
+        <span className="bg-linear-to-r from-purple-400 to-pink-500 text-white p-2 mr-4 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer"><Link to={isPremium ? '/expense-report' : "/check-premium"}>Expense Report</Link> </span>
+      
       {/* log out */}
-<div className="flex justify-end mb-4 pr-2">
-  <button
-    onClick={handleLogOut}
-    className="bg-linear-to-r from-pink-500 to-purple-500 text-white px-5 py-2 rounded-lg shadow-md hover:from-purple-500 hover:to-pink-500 hover:scale-105 transition-all duration-300"
-  >
-    🚪 Logout
-  </button>
-</div>
+        <Logout />
+      </div>
+     
       <h1 className="text-4xl font-bold text-purple-700 mb-6 text-center">
         💰 Dashboard
       </h1>
-      <button onClick={handleShow} className="bg-linear-to-r from-teal-300 to-teal-500 text-white p-2 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer">Primium user</button>
-       <span className="bg-linear-to-r from-purple-400 to-pink-500 text-white p-2 ml-4 mt-3 w-50 mb-2 rounded hover:opacity-90 cursor-pointer"><Link to='/expense-report'>Expense Report</Link> </span>
-      <div>
- {showAllUser.map((user) => {
-  return (
-    <div key={user.id}>
-      <h2>{user.name}</h2>
-      <p><b>Total Expenses:</b> {user.totalExpense}</p>
-      {user.expenses?.map((exp) => (
-        <p key={exp.id}>Amount: {exp.amount}</p>
-      ))}
-      <button onClick={()=>handleClick(user.id)}>Delete Expense</button>
-    </div>
-  );
-})}
-</div>
+    
       {/*user Details  */}
  <UserDetail/>
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="w-[80%] m-auto mb-6">
         {/* Salary Card */}
         <div className="bg-white shadow-lg rounded-xl p-6 border border-pink-200">
           <h2 className="text-lg font-semibold text-gray-700">
@@ -169,6 +98,7 @@ const navigate = useNavigate()
           <input
             type="number"
             value={inputSalary}
+            required
             onChange={(e) => setInputSalary(e.target.value)}
             className="border border-pink-300 focus:outline-none focus:ring-2 focus:ring-purple-400 p-2 mt-3 w-full rounded"
           />
@@ -177,21 +107,14 @@ const navigate = useNavigate()
             onClick={handleSalary}
             className="bg-linear-to-r from-pink-500 to-purple-500 text-white p-2 mt-3 w-full rounded hover:opacity-90"
           >
-            Update Salary
+            Add Salary
           </button>
-        </div>
-
-        {/* Balance Card */}
-        <div className="bg-white shadow-lg rounded-xl p-6 border border-purple-200 flex items-center justify-center">
-          <h2 className="text-xl font-bold text-purple-700">
-            Balance: ₹{balance}
-          </h2>
         </div>
 
       </div>
 
       {/* Add Expense */}
-      <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border border-pink-200">
+      <div className="bg-white shadow-lg rounded-xl w-[80%] m-auto p-6 mb-6 border border-pink-200">
         <div className="flex flex-col md:flex-row gap-3">
           <input
             type="number"

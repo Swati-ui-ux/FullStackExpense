@@ -1,10 +1,9 @@
-const User = require("../model/User")
 require("dotenv").config()
 const bcrypt= require('bcrypt')
 const jwt = require("jsonwebtoken")
-const { Expense } = require("../model")
 const sequelize = require("../utils/connection_db")
 const sendResetEmail = require("../utils/sendEmail")
+const { User, Expense } = require("../model")
 const signUpUser = async (req,res) => {
     try {
     console.log("Body",req.body)
@@ -13,7 +12,7 @@ const signUpUser = async (req,res) => {
     // console.log(name,email,password)
     const user = await User.create({ name, email, password:hashedPassword })
     if(!user) return res.status(404).json({messsage:"User not created"})
-    res.status(201).json({messsage:"User createdsuccefully",user})
+    res.status(201).json({messsage:"User sign upsuccefully",user})
     
 } catch (error) {
     console.log("Errorn in",error)
@@ -36,7 +35,7 @@ const loginUser = async (req,res) => {
         
         }
         const token = jwt.sign(
-  { id: user.id, email: user.email },
+  { id: user.id, email: user.email,isPremium:user.isPremium },
   process.env.MY_SECRET_KEY,
   { expiresIn: "7d" }
 )
@@ -60,7 +59,8 @@ const getUserData = async (req, res) => {
         "email",
         "salary",
         "remainingBalance",
-        "totalExpense"
+        "totalExpense",
+        "isPremium",
       ],
       transaction: t
     })
@@ -73,6 +73,7 @@ const getUserData = async (req, res) => {
       transaction: t
     })
     await t.commit()
+    console.log("Premium User💌💌",user.isPremium)
     return res.status(200).json({
       user,
       totalExpense: totalExpense
@@ -107,16 +108,20 @@ console.log(err)
 // }
 
 const updateSalary = async (req, res) => {
+  const t = await sequelize.transaction()
+
   try {
     const { salary } = req.body
 
-    const user = await User.findByPk(req.user.id)
+    const user = await User.findByPk(req.user.id, { transaction: t })
 
     const diff = salary - user.salary
     user.salary = salary
     user.remainingBalance += diff
 
-    await user.save()
+    await user.save({ transaction: t })
+
+    await t.commit()
 
     res.json({
       salary: user.salary,
@@ -124,6 +129,7 @@ const updateSalary = async (req, res) => {
     })
 
   } catch (err) {
+    await t.rollback()
     res.status(500).json({ message: "Error updating salary" })
   }
 }
@@ -161,22 +167,6 @@ const deleteUser =async (req,res) => {
    }
 }
 
-// const forgotPassword = async(req,res) => {
-//  try {
-//    const { email } = req.body;
-//    const user = await User.findOne({ where: { email } })
-//    if (!user) return res.status(404).json({ message: "User not found" });
-
-//   const resetToken = crypto.randomBytes(32).toString("hex");
-
-//   user.resetToken = resetToken;
-//   user.resetTokenExpiry = Date.now() + 15 * 60 * 1000; // 15 min
-//    await user.save();
-//    sendResetEmail
-//  } catch (error) {
-  
-//  }
-// }
 
 
 module.exports = {signUpUser,loginUser,getUserData,updateSalary,getAllUser,deleteUser}

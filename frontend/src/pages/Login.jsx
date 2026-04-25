@@ -1,8 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useNavigate,Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { AuthContext } from '../context/AuthContext'
+import { useContext } from 'react'
 const Login = () => {
+  const { isLoggedIn} = useContext(AuthContext)
+  
  const navigate =  useNavigate()
   const [formData, setFormData] = useState({
     email: "",
@@ -30,14 +34,12 @@ const Login = () => {
       formData
     );
 
-    console.log(res.data);
-
     
     localStorage.setItem("token", res.data.token);
-console.log("Token",res.data.token)
-    toast.success("Login Successful ✅");
-
-    navigate("/"); 
+    toast.success(res.data.message);
+    // if(isLoggedIn){
+      navigate("/")
+    // }
 
   } catch (error) {
     console.log(error);
@@ -73,15 +75,16 @@ console.log("Token",res.data.token)
           className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
+       <span>Forgot password <Link to='/forgot-password' className='text-blue-600'>click</Link></span>
         <button
           type="submit"
-                  className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-200"
+                  className="w-full mt-2 mb-2 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition duration-200"
                   onClick={handleSubmit}
         >
           Login
         </button>
+        <span>Create new Account <Link to='/signup' className='text-blue-600'>click</Link></span>
       </form>
-       <span>Forgot password <Link to='/forgot-password'>click</Link></span>
       
     </div>
   )
